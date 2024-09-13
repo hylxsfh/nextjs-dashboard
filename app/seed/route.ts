@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt';
 import { db } from '@vercel/postgres';
+import { sql } from '@vercel/postgres';
 import { invoices, customers, revenue, users } from '../lib/placeholder-data';
+import { Revenue } from '../lib/definitions';
 
 const client = await db.connect();
 
@@ -101,6 +103,13 @@ async function seedRevenue () {
   return insertedRevenue;
 }
 
+
+async function testSQL () {
+  const data = await client.sql<Revenue>`SELECT * FROM revenue`;
+  console.log('使用sql查询supabase数据库', data.rows);
+  return data;
+}
+
 export async function GET () {
   // return Response.json({
   //   message:
@@ -108,10 +117,11 @@ export async function GET () {
   // });
   try {
     await client.sql`BEGIN`;
-    await seedUsers();
-    await seedCustomers();
-    await seedInvoices();
-    await seedRevenue();
+    await testSQL();
+    // await seedUsers();
+    // await seedCustomers();
+    // await seedInvoices();
+    // await seedRevenue();
     await client.sql`COMMIT`;
 
     return Response.json({ message: 'Database seeded successfully' });
